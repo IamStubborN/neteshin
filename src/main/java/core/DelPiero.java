@@ -4,6 +4,7 @@ import org.telegram.telegrambots.api.methods.send.SendDocument;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -25,7 +26,11 @@ public class DelPiero extends TelegramLongPollingBot {
 
     public DelPiero() {
         TokenReader reader = new TokenReader();
+        if (System.getProperty("os.name").equals("Mac OS X")) {
+            reader.readConfigs("/Users/andreyprikhodko/job4j/file.txt");
+        } else {
         reader.readConfigs("D:\\!job4j\\file.txt");
+        }
         this.token = reader.getToken();
         this.botName = reader.getBotName();
         init();
@@ -33,6 +38,15 @@ public class DelPiero extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        SendMessage sendMessage = new SendMessage()
+                .setParseMode("HTML")
+                .setChatId(update.getMessage().getChatId())
+                .setText("<img src=\"http://i.stack.imgur.com/SBv4T.gif\" title=\"this slowpoke moves\" />");
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
         startLogic(update);
     }
 
@@ -123,10 +137,18 @@ public class DelPiero extends TelegramLongPollingBot {
     private void run(String call_data, Long chatId) {
         switch (call_data) {
             case "download_jpeg":
-                sendLocalPhoto("D:\\!job4j\\telegram\\График автобусов.jpg", chatId);
+                if (System.getProperty("os.name").equals("Mac OS X")) {
+                    sendLocalPhoto("/Users/andreyprikhodko/job4j/telegram/График автобусов.jpg", chatId);
+                } else {
+                    sendLocalPhoto("D:\\!job4j\\telegram\\График автобусов.jpg", chatId);
+                }
                 break;
             case "download_doc":
-                sendLocalFile("D:\\!job4j\\telegram\\График автобусов.doc", chatId);
+                if (System.getProperty("os.name").equals("Mac OS X")) {
+                    sendLocalFile("/Users/andreyprikhodko/job4j/telegram/График автобусов.doc", chatId);
+                } else {
+                    sendLocalFile("D:\\!job4j\\telegram\\График автобусов.doc", chatId);
+                }
         }
 
     }
@@ -136,8 +158,10 @@ public class DelPiero extends TelegramLongPollingBot {
         sendDocument.setChatId(chatId);
         File file = new File(filePath);
         sendDocument.setNewDocument(file);
+        sendDocument.setCaption("hehe");
         try {
-            sendDocument(sendDocument);
+            Message message = sendDocument(sendDocument);
+            System.out.println(message.toString());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
